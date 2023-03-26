@@ -27,11 +27,11 @@ class ItemSerializer(serializers.ModelSerializer):
 
     def get_volume(self, obj):
         if obj.volume == nan:
-            return 0
+            return 1
         try:
             return int(obj.volume)
         except ValueError:
-            return 0
+            return 1
 
     class Meta:
         model = Item

@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -17,7 +18,13 @@ from marking_hack.market.models import Store, Region, StoreItem, Item
 class ListStore(generics.ListAPIView):
     serializer_class = StoreSerializer
     pagination_class = BigResultsSetPagination
-    queryset = Store.objects.filter(sales__isnull=False).order_by("-id_sp").distinct()
+    queryset = (
+        Store.objects.filter(sales__isnull=False)
+        .order_by("-id_sp")
+        .distinct()
+        .annotate(num_sales=Count("sales"))
+        .order_by("-num_sales")
+    )
 
 
 class ListStoreItems(generics.ListAPIView):
@@ -27,11 +34,12 @@ class ListStoreItems(generics.ListAPIView):
     def get_queryset(self):
         store = get_object_or_404(Store, id_sp=self.kwargs["id_sp"])
         ids = (
-            StoreItem.objects.filter(store=store)
+            StoreItem.objects.filter(store=store, amount__gte=10)
             .values_list("item", flat=True)
             .distinct()
         )
-        return Item.objects.filter(id__in=ids)
+
+        return sorted(Item.objects.filter(id__in=ids), key=lambda x: x.sales.last().amount, reverse=True)
 
 
 class RegionListView(generics.ListAPIView):
