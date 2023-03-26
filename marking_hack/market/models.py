@@ -15,7 +15,7 @@ class City(models.Model):
     fias = models.UUIDField(
         default=uuid.uuid4, editable=False, unique=True, db_index=True
     )
-    name = models.CharField(max_length=250)
+    name = models.CharField(max_length=150)
 
 
 class Store(models.Model):
@@ -110,4 +110,4 @@ class StoreItem(models.Model):
     amount = models.IntegerField()
 
     class Meta:
-        ordering = ["-date"]
+        ordering = ["date"]

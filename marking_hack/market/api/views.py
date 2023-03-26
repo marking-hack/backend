@@ -17,7 +17,7 @@ from marking_hack.market.models import Store, Region, StoreItem, Item
 class ListStore(generics.ListAPIView):
     serializer_class = StoreSerializer
     pagination_class = BigResultsSetPagination
-    queryset = Store.objects.order_by("-id_sp")
+    queryset = Store.objects.filter(sales__isnull=False).order_by("-id_sp").distinct()
 
 
 class ListStoreItems(generics.ListAPIView):
@@ -74,5 +74,6 @@ class PredictItemsView(generics.GenericAPIView):
                 else:
                     print(qs)
                     items.append({"id": x_item, "predicted_volume": 0})
+            shop["items"] = items
         data["shops"] = shops
         return Response(data=data)

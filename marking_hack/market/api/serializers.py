@@ -20,13 +20,18 @@ class ItemSerializer(serializers.ModelSerializer):
         amount = obj.sales.first().amount
         if amount == nan:
             return 0
-        return float(amount)
+        try:
+            return int(amount)
+        except ValueError:
+            return 0
 
     def get_volume(self, obj):
-        print(obj.volume)
         if obj.volume == nan:
             return 0
-        return obj.volume
+        try:
+            return int(obj.volume)
+        except ValueError:
+            return 0
 
     class Meta:
         model = Item
